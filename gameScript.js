@@ -3,7 +3,6 @@ let ctx                     = cvs.getContext("2d");
 let bg = new Image();       bg.src = "Photo/Phones/BG.png";
 
 let baseX = 10, baseY       = 380;
-let NumberOfSpawnPoints     = 99;
 let windowsWidth            = cvs.width;
 
 const ACTIONS = {
@@ -24,7 +23,7 @@ function addPerson() {
         is_fly:                 false,
         in_sky:                 true,
         start_f:                baseY,
-        heightOfFly:            100,
+        heightOfFly:            10,
         animation_index:        1,
         animation_index_max:    4,
         animation_fight:        1,
@@ -56,13 +55,21 @@ function addBlueRunner() {
         heightOfFly:            100,
         animation_index:        1,
         animation_index_max:    4,
+        ACTION_TYPE:            null,
     });
     Enemy.image.src      = "Photo/Enemys/Blue runner/walk_l_1.png";
     Enemy.start          = function() {
         setInterval(() => {
-            if(Person.posX < this.posX) move(this,"left");
-            else move(this,"right");
-        }, 105);
+            if(Person.posX < this.posX) {
+                this.ACTION_TYPE = ACTIONS.LEFT;
+                move(this);
+            }
+            else {
+                this.ACTION_TYPE = ACTIONS.RIGHT;
+                move(this);
+            }
+            // alert(this.posX);
+        }, 100);
     };
     return Enemy;
 }
@@ -82,26 +89,19 @@ function fly(obj)           {
     }
 }
 
-function animation(obj, cadr) {
-    if(cadr.name === "right") {
-        obj.ACTION_TYPE = ACTIONS.RIGHT;
-
+function animation(obj) {
+    if(obj.ACTION_TYPE == ACTIONS.RIGHT) {
         obj.image.src = `${obj.path}walk_r_${obj.animation_index}.png`;
         obj.animation_index = ((obj.animation_index >= obj.animation_index_max) ? 1 : obj.animation_index + 1);
     }
-    if(cadr.name === "left") {
-        obj.ACTION_TYPE = ACTIONS.LEFT;
-
+    if(obj.ACTION_TYPE == ACTIONS.LEFT) {
         obj.image.src = `${obj.path}walk_l_${obj.animation_index}.png`;
         obj.animation_index = ((obj.animation_index >= obj.animation_index_max) ? 1 : obj.animation_index + 1);
     }
-    if(cadr.name === "fight") {
-        obj.ACTION_TYPE = ACTIONS.FIGHT;
-
+    if(obj.ACTION_TYPE == ACTIONS.FIGHT) {
         if (obj.animation_fight !== 1) {
             return;
         }
-
         const a = () => {
             if (obj.ACTION_TYPE !== ACTIONS.FIGHT) {
                 obj.animation_fight = 1;
@@ -123,47 +123,46 @@ function animation(obj, cadr) {
     }
 }
 
-function move(obj, key) {
-    if(key == "right") {
+function move(obj) {
+    if(obj.ACTION_TYPE == ACTIONS.RIGHT) {
         right(obj);
-        animation(obj, {name: "right"});
+        animation(obj);
     }
-    if(key == "left") {
+    if(obj.ACTION_TYPE == ACTIONS.LEFT) {
         left(obj);
-        animation(obj, {name: "left"});
+        animation(obj);
     }
-    if(key == "up") {
+    if(obj.ACTION_TYPE == ACTIONS.UP) {
         fly(obj);
     }
-    if(key == "fight") {
-        animation(obj, {name: "fight"});
+    if(obj.ACTION_TYPE == ACTIONS.FIGHT) {
+        animation(obj);
     }
 }
 
 document.addEventListener('keydown', (e) => {
     let action = null;
-
-    const { code } = e;
+    const code  = e.code;
 
     switch (code) {
         case 'Space':
-            action = 'fight';
+            action = ACTIONS.FIGHT;
             break;
         case 'ArrowRight':
-            action = 'right';
+            action = ACTIONS.RIGHT;  
             break;
         case 'ArrowLeft':
-            action = 'left';
+            action = ACTIONS.LEFT;
             break;
         case 'ArrowUp':
-            action = 'up';
+            action = ACTIONS.UP;
             break;
     }
 
     if (action !== null) {
+        Person.ACTION_TYPE = action;
         e.preventDefault();
-
-        move(Person, action);
+        move(Person);
     }
 });
 
@@ -173,9 +172,7 @@ document.addEventListener('keyup', function()   {
     Person.animation_fight = 1;
 });
 let Person = addPerson();
-let Enemys = new Array();
-let numberOfEnemys = 10;
-let currentNumberOfEnemys = 2;
+let Enemys = new Array(), numberOfEnemys = 10;
 
 for(let i = 0;i < numberOfEnemys;i++) {
     Enemys[i] = addBlueRunner();
@@ -187,13 +184,13 @@ function draw() {
     ctx.drawImage(bg, 0, 0,1440,720);
     ctx.drawImage(Person.image, Person.posX, Person.posY, Person.image.width * 2, Person.image.height * 2);
 
-    for(let i = 0;i < numberOfEnemys;i++) {
+    for(let i = 0;i < Enemys.length;i++) {
         ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
     }
 
-    for(let i = 0;i < numberOfEnemys;i++) {
-        if(Person.animation_fight > 1 && Math.abs(Person.posX - Enemys[i].posX) < 100) {
-            Enemys[i].posX = 10000;
+    for(let i = 0;i < Enemys.length;i++) {
+        if(Person.ACTION_TYPE == ACTIONS.FIGHT && Math.abs(Person.posX - Enemys[i].posX) < 1000) {
+            Enemys = Enemys.splice(i,1);    
         }
     }
     Person.flying();
