@@ -139,13 +139,6 @@ function draw() {
     for(let i = 0;i < numberOfEnemys;i++) {
         ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);    
     }
-
-    for(let i = 0;i < numberOfEnemys;i++) {
-        if(Person.animation_fight > 1 && Math.abs(Person.posX - Enemys[i].posX) < 100) {
-            
-            numberOfEnemys--;
-        } 
-    }
     Person.flying();
 
     requestAnimationFrame(draw);
