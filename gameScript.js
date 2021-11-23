@@ -98,6 +98,10 @@ function animation(obj, cadr) {
     if(cadr.name === "fight") {
         obj.ACTION_TYPE = ACTIONS.FIGHT;
 
+        if (obj.animation_fight !== 1) {
+            return;
+        }
+
         const a = () => {
             if (obj.ACTION_TYPE !== ACTIONS.FIGHT) {
                 obj.animation_fight = 1;
