@@ -2,7 +2,6 @@ let cvs                     = document.getElementById("canvas");
 let ctx                     = cvs.getContext("2d");
 let bg                      = new Image();       
 bg.src                      = "Photo/Phones/BG.png";
-let XP_path                 = "Photo/other/XP.png";
 
 let baseX = 10, baseY       = 380;
 let windowsWidth            = cvs.width;
@@ -10,8 +9,6 @@ let windowsWidth            = cvs.width;
 let Person                  = addPerson();
 let numberOfEnemys          = 10;
 let Enemys                  = new Array();
-
-// Enemys = addBlueRunners(numberOfEnemys); wtf?
 
 const ACTIONS = {
     RIGHT:   1,
@@ -23,11 +20,12 @@ const ACTIONS = {
 
 function showXP(obj) {
     let XP_line = new Image();
-    XP_line.src = XP_path;
+    XP_line.src = obj.XP_path;
     ctx.drawImage(XP_line,obj.posX,obj.posY - obj.image.height,70 / ((obj.XP_max/obj.XP_current)),50);
 }
 function addPerson() {
     let Person = new Object({
+        XP_path:                 "Photo/other/XP.png",
         path:                   "Photo/Persons/Glen/",
         image:                  new Image(),
 
@@ -66,6 +64,7 @@ function addPerson() {
 }
 function addBlueRunner() {
     let Enemy = new Object({
+        XP_path:                "Photo/other/XP_enemy.png",
         path:                   "Photo/Enemys/Blue runner/",
         image:                  new Image(),
 
@@ -95,6 +94,7 @@ function addBlueRunner() {
     Enemy.image.src      = "Photo/Enemys/Blue runner/walk_l_1.png";
     ;
     Enemy.animation_atack = function(arg) {
+        this.ACTION_TYPE = ACTIONS.FIGHT;
         if (this.animation_fight !== 1) return;
         const a = () => {
             if (this.animation_fight === this.animation_fight_max) {
@@ -112,41 +112,21 @@ function addBlueRunner() {
         setInterval(() => {
             if(this.ACTION_TYPE == ACTIONS.WAIT) alert("Enemy.start() -> {this.ACTION_TYPE == ACTIONS.WAIT}");
             else if(Math.abs(this.posX - Person.posX) < this.damage_R) {
-                if(this.ACTION_TYPE == ACTIONS.LEFT) {
-                    this.ACTION_TYPE = ACTIONS.FIGHT;
-                    this.animation_atack("_l_");
-                }
-                else {
-                    this.ACTION_TYPE = ACTIONS.FIGHT;
-                    this.animation_atack("_r_");
-                }
+                if(this.ACTION_TYPE == ACTIONS.LEFT) this.animation_atack("_l_");
+                else                                 this.animation_atack("_r_");
             }
             else if(Person.posX < this.posX) {
                 this.ACTION_TYPE = ACTIONS.LEFT;
                 move(this);
-                if(Math.abs(this.posX - Person.posX) < 300) {
-                    this.ACTION_TYPE = ACTIONS.FIGHT;
-                    this.animation_atack("_l_");
-                }
+                if(Math.abs(this.posX - Person.posX) < 300) this.animation_atack("_l_");
                 this.ACTION_TYPE = ACTIONS.LEFT;
             }
             else {
                 this.ACTION_TYPE = ACTIONS.RIGHT;
                 move(this);
-                if(Math.abs(this.posX - Person.posX) < 300) {
-                    this.ACTION_TYPE = ACTIONS.FIGHT;
-                    this.animation_atack("_r_");
-                }
+                if(Math.abs(this.posX - Person.posX) < 300) this.animation_atack("_r_");
                 this.ACTION_TYPE = ACTIONS.RIGHT;
             }
-            if(Math.abs(Person.posX - this.posX) < this.damage_R) {
-                if(Person.XP_current > 0) Person.XP_current -= this.damage;
-                else {
-                    alert("Game over");
-                    reset();
-                }
-            }
-            else if(Person.XP_current < Person.XP_max) Person.XP_current += 0.15;
         }, 100);
     };
     return Enemy;
@@ -256,11 +236,12 @@ document.addEventListener('keyup', function()   {
 });
 
 function reset() {
+    Enemys.splice(0,Enemys.length);
     Person = addPerson();
     Enemys = addBlueRunners(numberOfEnemys);
 }
 
-Enemys = addBlueRunners(numberOfEnemys); //wtf?
+Enemys = addBlueRunners(numberOfEnemys);
 
 function draw() {
     ctx.drawImage(bg, 0, 0,1440,720);
@@ -269,6 +250,14 @@ function draw() {
     for(let i = 0;i < Enemys.length;i++) {
         showXP(Enemys[i]);
         ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
+        if(Math.abs(Person.posX - Enemys[i].posX) < Enemys[i].damage_R) {
+            if(Person.XP_current > 0) Person.XP_current -= Enemys[i].damage + 100;
+            else {
+                alert("Game over");
+                reset();
+            }
+        }
+        else if(Person.XP_current < Person.XP_max) Person.XP_current += 0.15;
     }
     Person.flying();
     showXP(Person);
