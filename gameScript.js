@@ -51,6 +51,7 @@ function addPerson() {
         XP_max:                 100,
 
         damage:                 30.1,
+        damage_R:               100,
     });
     Person.image.src     = `${Person.path}wait.png`;
     Person.flying = function()  {
@@ -89,6 +90,7 @@ function addBlueRunner() {
         XP_max:                 100,
 
         damage:                 1,
+        damage_R:               3,
     });
     Enemy.image.src      = "Photo/Enemys/Blue runner/walk_l_1.png";
     ;
@@ -109,7 +111,7 @@ function addBlueRunner() {
         this.ACTION_TYPE = ACTIONS.LEFT;
         setInterval(() => {
             if(this.ACTION_TYPE == ACTIONS.WAIT) alert("Enemy.start() -> {this.ACTION_TYPE == ACTIONS.WAIT}");
-            else if(Math.abs(this.posX - Person.posX) < 10) {
+            else if(Math.abs(this.posX - Person.posX) < this.damage_R) {
                 if(this.ACTION_TYPE == ACTIONS.LEFT) {
                     this.ACTION_TYPE = ACTIONS.FIGHT;
                     this.animation_atack("_l_");
@@ -137,7 +139,7 @@ function addBlueRunner() {
                 }
                 this.ACTION_TYPE = ACTIONS.RIGHT;
             }
-            if(Math.abs(Person.posX - this.posX) < 10) {
+            if(Math.abs(Person.posX - this.posX) < this.damage_R) {
                 if(Person.XP_current > 0) Person.XP_current -= this.damage;
                 else {
                     alert("Game over");
@@ -190,7 +192,7 @@ function animation(obj) {
         const a = () => {
             if (obj.animation_fight === obj.animation_fight_max) {
                 for(let i = 0;i < Enemys.length;i++) {
-                    if(Math.abs(Person.posX - Enemys[i].posX) < 100) {
+                    if(Math.abs(Person.posX - Enemys[i].posX) < Person.damage_R) {
                         if(Enemys[i].XP_current > 0) Enemys[i].XP_current -= Person.damage;
                         else Enemys.splice(i, 1); 
                     } 
