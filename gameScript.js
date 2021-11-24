@@ -95,13 +95,13 @@ function addBlueRunner() {
                 this.ACTION_TYPE = ACTIONS.RIGHT;
                 move(this);
             }
-            if(Math.abs(Person.posX - this.posX) < 10) {
-                if(Person.XP_current > 0) Person.XP_current -= this.damage;
-                else {
-                    Person.image.src = "";
-                    alert("Game over");
-                }
-            } 
+            // if(Math.abs(Person.posX - this.posX) < 10) {
+            //     if(Person.XP_current > 0) Person.XP_current -= this.damage;
+            //     else {
+            //         Person.image.src = "";
+            //         alert("Game over");
+            //     }
+            // } 
         }, 100);
     };
     return Enemy;
