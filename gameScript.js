@@ -7,7 +7,7 @@ let windowsWidth            = cvs.width;
 
 let Person                  = addPerson();
 let Enemys                  = new Array(),
-                              numberOfEnemys = 12;
+                              numberOfEnemys = 3;
 const ACTIONS = {
     RIGHT:   1,
     LEFT:    2,
@@ -64,8 +64,13 @@ function addBlueRunner() {
     });
     Enemy.image.src      = "Photo/Enemys/Blue runner/walk_l_1.png";
     Enemy.start          = function() {
+        this.ACTION_TYPE = ACTIONS.LEFT;
         setInterval(() => {
-            if(Person.posX < this.posX) {
+            if(this.ACTION_TYPE == ACTIONS.WAIT) {
+                alert("Enemy.start() -> {this.ACTION_TYPE == ACTIONS.WAIT}");
+                return;
+            }
+            else if(Person.posX < this.posX) {
                 this.ACTION_TYPE = ACTIONS.LEFT;
                 move(this);
             }
@@ -73,7 +78,6 @@ function addBlueRunner() {
                 this.ACTION_TYPE = ACTIONS.RIGHT;
                 move(this);
             }
-            // alert(this.posX);
         }, 100);
     };
     return Enemy;
@@ -153,6 +157,9 @@ document.addEventListener('keydown', (e) => {
             break;
         case 'ArrowUp':
             action = ACTIONS.UP;
+            break;
+        default:
+            alert("Pause");
             break;
     }
 
