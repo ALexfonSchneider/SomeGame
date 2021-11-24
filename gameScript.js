@@ -1,13 +1,15 @@
 let cvs                     = document.getElementById("canvas");
 let ctx                     = cvs.getContext("2d");
-let bg = new Image();       bg.src = "Photo/Phones/BG.png";
+let bg                      = new Image();       
+bg.src                      = "Photo/Phones/BG.png";
+let XP_path                 = "Photo/other/XP.png";
 
 let baseX = 10, baseY       = 380;
 let windowsWidth            = cvs.width;
 
 let Person                  = addPerson();
 let Enemys                  = new Array(),
-                              numberOfEnemys = 3;
+                              numberOfEnemys = 10;
 const ACTIONS = {
     RIGHT:   1,
     LEFT:    2,
@@ -16,6 +18,12 @@ const ACTIONS = {
     WAIT:    5,
 };
 
+
+function showXP(obj) {
+    let XP_line = new Image();
+    XP_line.src = XP_path;
+    ctx.drawImage(XP_line,obj.posX,obj.posY - obj.image.height,70 / ((obj.XP_max/obj.XP_current)),50);
+}
 
 function addPerson() {
     let Person = new Object({
@@ -30,10 +38,15 @@ function addPerson() {
         start_f:                baseY,
         heightOfFly:            100,
         animation_index:        1,
-        animation_index_max:    4,
         animation_fight:        1,
+        animation_index_max:    4,
         animation_fight_max:    5,
         ACTION_TYPE:            null,
+
+        XP_current:             100,
+        XP_max:                 100,
+
+        damage:                 30.1,
     });
     Person.image.src     = `${Person.path}wait.png`;
     Person.flying = function()  {
@@ -61,6 +74,11 @@ function addBlueRunner() {
         animation_index:        1,
         animation_index_max:    4,
         ACTION_TYPE:            null,
+
+        XP_current:             100,
+        XP_max:                 100,
+
+        damage:                 11.1,
     });
     Enemy.image.src      = "Photo/Enemys/Blue runner/walk_l_1.png";
     Enemy.start          = function() {
@@ -113,12 +131,18 @@ function animation(obj) {
         }
         const a = () => {
             if (obj.animation_fight === obj.animation_fight_max) {
+                for(let i = 0;i < Enemys.length;i++) {
+                    if(Math.abs(Person.posX - Enemys[i].posX) < 30) {
+                        if(Enemys[i].XP_current > 0) Enemys[i].XP_current -= Person.damage;
+                        else Enemys.splice(i, 1); 
+                    } 
+                }
                 obj.image.src = `${obj.path}wait.png`;
                 obj.animation_fight = 1;
                 return;
             } 
             else obj.image.src = `${obj.path}fight_l_${obj.animation_fight++}.png`;
-        setTimeout(a, 100);
+        setTimeout(a, 120);
         }
     a();
     }
@@ -158,9 +182,9 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowUp':
             action = ACTIONS.UP;
             break;
-        default:
-            alert("Pause");
-            break;
+        // default:
+        //     alert("Pause");
+        //     break;
     }
 
     if (action !== null) {
@@ -171,27 +195,29 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', function()   {
+    let action = null;
+    const code  = e.code;
     Person.image.src = "Photo/Persons/Glen/wait.png";
     Person.ACTION_TYPE = ACTIONS.WAIT;
-    Person.animation_index = 1;
-    Person.animation_fight = 1;
 });
 
 for(let i = 0;i < numberOfEnemys;i++) {
     Enemys[i] = addBlueRunner();
-    Enemys[i].posX = Math.floor(windowsWidth * Math.random() + windowsWidth);
+    Enemys[i].posX = Math.floor(windowsWidth * Math.random() + windowsWidth/2);
     Enemys[i].start();
 }
 
 function draw() {
     ctx.drawImage(bg, 0, 0,1440,720);
     ctx.drawImage(Person.image, Person.posX, Person.posY, Person.image.width * 2, Person.image.height * 2);
-
+    
     for(let i = 0;i < Enemys.length;i++) {
-        if(Person.ACTION_TYPE === ACTIONS.FIGHT && (Math.abs(Person.posX - Enemys[i].posX) < 30)) Enemys.splice(i, 1);   
-        else ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
+        showXP(Enemys[i]);
+        
+        ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
     }
     Person.flying();
+    showXP(Person);
 
     requestAnimationFrame(draw);
 }
