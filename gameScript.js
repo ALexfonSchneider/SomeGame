@@ -136,7 +136,7 @@ function addBlueRunners(number) {
         let BlueRunners = new Array();
         for(let i = 0;i < number; i++) {
             BlueRunners[i] = addBlueRunner();
-            BlueRunners[i].posX = Math.floor(windowsWidth * Math.random() + windowsWidth/2);
+            BlueRunners[i].posX = Math.floor(windowsWidth * Math.random() + windowsWidth);
             BlueRunners[i].start();
         }
         return BlueRunners;
@@ -243,6 +243,8 @@ function reset() {
 
 Enemys = addBlueRunners(numberOfEnemys);
 
+let level = 1;
+
 function draw() {
     ctx.drawImage(bg, 0, 0,1440,720);
     ctx.drawImage(Person.image, Person.posX, Person.posY, Person.image.width * 2, Person.image.height * 2);
@@ -251,13 +253,18 @@ function draw() {
         showXP(Enemys[i]);
         ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
         if(Math.abs(Person.posX - Enemys[i].posX) < Enemys[i].damage_R) {
-            if(Person.XP_current > 0) Person.XP_current -= Enemys[i].damage + 100;
+            if(Person.XP_current > 0) Person.XP_current -= Enemys[i].damage;
             else {
                 alert("Game over");
                 reset();
             }
         }
         else if(Person.XP_current < Person.XP_max) Person.XP_current += 0.15;
+    }
+    if(Enemys.length === 0) {
+        alert(`Уровень ${level++} пройден, новый уровень`);
+
+        Enemys = addBlueRunners(numberOfEnemys*=2);
     }
     Person.flying();
     showXP(Person);
