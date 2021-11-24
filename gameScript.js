@@ -18,7 +18,6 @@ const ACTIONS = {
     WAIT:    5,
 };
 
-
 function showXP(obj) {
     let XP_line = new Image();
     XP_line.src = XP_path;
@@ -96,6 +95,13 @@ function addBlueRunner() {
                 this.ACTION_TYPE = ACTIONS.RIGHT;
                 move(this);
             }
+            if(Math.abs(Person.posX - this.posX) < 10) {
+                if(Person.XP_current > 0) Person.XP_current -= this.damage;
+                else {
+                    Person.image.src = "";
+                    alert("Game over");
+                }
+            } 
         }, 100);
     };
     return Enemy;
@@ -213,7 +219,6 @@ function draw() {
     
     for(let i = 0;i < Enemys.length;i++) {
         showXP(Enemys[i]);
-        
         ctx.drawImage(Enemys[i].image, Enemys[i].posX, Enemys[i].posY, Enemys[i].image.width * 2, Enemys[i].image.height * 2);
     }
     Person.flying();
