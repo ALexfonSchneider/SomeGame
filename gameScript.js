@@ -138,7 +138,7 @@ function animation(obj) {
         const a = () => {
             if (obj.animation_fight === obj.animation_fight_max) {
                 for(let i = 0;i < Enemys.length;i++) {
-                    if(Math.abs(Person.posX - Enemys[i].posX) < 30) {
+                    if(Math.abs(Person.posX - Enemys[i].posX) < 100) {
                         if(Enemys[i].XP_current > 0) Enemys[i].XP_current -= Person.damage;
                         else Enemys.splice(i, 1); 
                     } 
