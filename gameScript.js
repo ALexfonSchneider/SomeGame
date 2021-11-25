@@ -222,6 +222,9 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowUp':
             action = ACTIONS.UP;
             break;
+        case 'Enter':
+            alert("Пауза");
+            break;
     }
 
     if (action !== null) {
